@@ -444,6 +444,60 @@ class BlackboardRenderer {
     }
 
     /**
+     * Capture selected elements as a base64 image
+     */
+    async captureSelectionAsImage(elements) {
+        if (!elements || elements.length === 0) return null;
+
+        // Calculate bounding box
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        elements.forEach(el => {
+            minX = Math.min(minX, el.x);
+            minY = Math.min(minY, el.y);
+            maxX = Math.max(maxX, el.x + el.width);
+            maxY = Math.max(maxY, el.y + el.height);
+        });
+
+        // Add padding
+        const padding = 20;
+        minX -= padding;
+        minY -= padding;
+        maxX += padding;
+        maxY += padding;
+
+        const width = maxX - minX;
+        const height = maxY - minY;
+
+        // Create temporary canvas
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = width;
+        tempCanvas.height = height;
+        const tempCtx = tempCanvas.getContext('2d');
+
+        // Fill background (blackboard color)
+        tempCtx.fillStyle = '#1a1f2e';
+        tempCtx.fillRect(0, 0, width, height);
+
+        // Render elements onto temp canvas
+        // We need to translate them so minX, minY is at 0,0
+        tempCtx.translate(-minX, -minY);
+
+        // We can reuse renderElement but we need to temporarily swap ctx
+        const originalCtx = this.ctx;
+        this.ctx = tempCtx;
+
+        // Render elements
+        for (const el of elements) {
+            this.renderElement(el);
+        }
+
+        // Restore ctx
+        this.ctx = originalCtx;
+
+        return tempCanvas.toDataURL('image/png');
+    }
+
+    /**
      * Render a single element (without animation)
      */
     renderElement(element) {

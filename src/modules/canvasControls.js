@@ -60,6 +60,8 @@ class CanvasControls {
             this.canvas.style.cursor = 'crosshair';
         } else if (tool === 'text') {
             this.canvas.style.cursor = 'text';
+        } else if (tool === 'pan') {
+            this.canvas.style.cursor = 'grab';
         } else {
             this.canvas.style.cursor = 'default';
         }
@@ -292,8 +294,8 @@ class CanvasControls {
         const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
         const ctrlKey = isMac ? e.metaKey : e.ctrlKey;
 
-        // Pan with space+left-click or middle mouse button
-        if ((this.spacePressed && e.button === 0) || e.button === 1) {
+        // Pan with space+left-click or middle mouse button OR pan tool
+        if ((this.spacePressed && e.button === 0) || e.button === 1 || (this.currentTool === 'pan' && e.button === 0)) {
             this.isPanning = true;
             this.lastX = e.clientX;
             this.lastY = e.clientY;
@@ -454,7 +456,11 @@ class CanvasControls {
     handleMouseUp(e) {
         if (this.isPanning) {
             this.isPanning = false;
-            this.canvas.style.cursor = this.spacePressed ? 'grab' : 'default';
+            if (this.currentTool === 'pan') {
+                this.canvas.style.cursor = 'grab';
+            } else {
+                this.canvas.style.cursor = this.spacePressed ? 'grab' : 'default';
+            }
         }
 
         if (this.isDraggingElement) {

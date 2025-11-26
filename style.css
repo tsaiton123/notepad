@@ -409,29 +409,113 @@ body {
   color: var(--text-tertiary);
 }
 
-/* ===== Chat Toggle - Geometric FAB ===== */
-.chat-toggle {
-  position: fixed;
-  bottom: var(--space-lg);
-  right: var(--space-lg);
-  width: 56px;
-  height: 56px;
-  border-radius: var(--radius-md);
-  /* Square with slight rounding */
-  background: var(--text-primary);
-  /* White background */
+/* ===== Context Toolbar ===== */
+.context-toolbar {
+  position: absolute;
+  background: var(--bg-card);
   border: 1px solid var(--border);
-  color: var(--bg-primary);
-  /* Black icon */
-  font-size: var(--text-xl);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-xs);
+  display: flex;
+  gap: var(--space-xs);
+  z-index: 2000;
+  pointer-events: auto;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.context-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  box-shadow: var(--shadow-md);
-  transition: all var(--transition-fast);
-  z-index: 999;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: var(--font-semibold);
+  transition: background var(--transition-fast);
+}
+
+.context-btn:hover {
+  background: var(--bg-secondary);
+}
+
+.context-btn.ai-assist {
+  color: var(--accent);
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.context-btn.ai-assist:hover {
+  background: rgba(99, 102, 241, 0.2);
+}
+
+/* AI Popover */
+.ai-popover {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: var(--space-xs);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  width: 300px;
+  padding: var(--space-sm);
+  display: none;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.ai-popover.open {
+  display: flex;
+}
+
+.ai-input {
+  width: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  resize: none;
+}
+
+.ai-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.preset-chip {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: var(--text-xs);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.preset-chip:hover {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-color: var(--accent);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .chat-toggle:hover {

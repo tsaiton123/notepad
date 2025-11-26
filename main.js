@@ -5,7 +5,7 @@
 
 import AIClient from './src/modules/ai.js';
 import BlackboardRenderer from './src/modules/renderer.js';
-import ChatInterface from './src/modules/chatInterface.js';
+import ContextToolbar from './src/modules/contextToolbar.js';
 import CanvasControls from './src/modules/canvasControls.js';
 import Calculator from './src/modules/calculator.js';
 import { CommandManager } from './src/core/CommandManager.js';
@@ -18,7 +18,7 @@ class AIBlackboard {
         this.ai = new AIClient();
         this.renderer = null;
         this.canvasControls = null;
-        this.chat = null;
+        this.contextToolbar = null;
         this.calculator = null;
         this.commandManager = null;
         this.storageManager = null;
@@ -54,14 +54,20 @@ class AIBlackboard {
         // Initialize canvas controls with command manager
         this.canvasControls = new CanvasControls(canvas, this.renderer, this.commandManager);
 
-        // Initialize chat interface
-        const messagesContainer = document.getElementById('chatMessages');
-        const chatInput = document.getElementById('chatInput');
-        const sendButton = document.getElementById('sendBtn');
-        this.chat = new ChatInterface(messagesContainer, chatInput, sendButton);
-
         // Initialize calculator
         this.calculator = new Calculator(this.renderer, this.commandManager);
+
+        // Initialize Context Toolbar
+        this.contextToolbar = new ContextToolbar(this.renderer, this.ai, this.commandManager);
+
+        // Listen for interactions to update toolbar
+        this.canvasControls.canvas.addEventListener('mouseup', () => {
+            setTimeout(() => this.contextToolbar.update(), 10);
+        });
+
+        window.addEventListener('keyup', () => {
+            setTimeout(() => this.contextToolbar.update(), 10);
+        });
 
         // Setup event handlers
         this.setupEventHandlers();
@@ -86,46 +92,25 @@ class AIBlackboard {
      * Setup all event handlers
      */
     setupEventHandlers() {
-        // Chat send message
-        this.chat.onSendMessage((message) => this.handleUserMessage(message));
-
         // Settings panel
         const settingsBtn = document.getElementById('settingsBtn');
         const settingsPanel = document.getElementById('settingsPanel');
         const closeSettings = document.getElementById('closeSettings');
 
-        settingsBtn.addEventListener('click', () => {
-            settingsPanel.classList.add('open');
-        });
+        if (settingsBtn && settingsPanel && closeSettings) {
+            settingsBtn.addEventListener('click', () => {
+                settingsPanel.classList.add('open');
+            });
 
-        closeSettings.addEventListener('click', () => {
-            settingsPanel.classList.remove('open');
-        });
+            closeSettings.addEventListener('click', () => {
+                settingsPanel.classList.remove('open');
+            });
+        }
 
-        // Chat toggle functionality
-        const chatToggle = document.getElementById('chatToggle');
-        const chatSidebar = document.getElementById('chatSidebar');
-        const chatClose = document.getElementById('chatClose');
-
-        const toggleChat = () => {
-            chatSidebar.classList.toggle('open');
-        };
-
-        chatToggle.addEventListener('click', toggleChat);
-        chatClose.addEventListener('click', () => {
-            chatSidebar.classList.remove('open');
-        });
-
-        // Keyboard shortcut for chat (C key)
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'c' && !e.ctrlKey && !e.metaKey &&
-                e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-                toggleChat();
-            }
-        });
 
         // Tool mode switching with status update
         const selectToolBtn = document.getElementById('selectTool');
+        const handToolBtn = document.getElementById('handTool');
         const penToolBtn = document.getElementById('penTool');
         const textToolBtn = document.getElementById('textTool');
         const imageToolBtn = document.getElementById('imageTool');
@@ -134,11 +119,13 @@ class AIBlackboard {
 
         const updateToolUI = (activeTool) => {
             selectToolBtn.classList.toggle('active', activeTool === 'select');
+            handToolBtn.classList.toggle('active', activeTool === 'pan');
             penToolBtn.classList.toggle('active', activeTool === 'draw');
             textToolBtn.classList.toggle('active', activeTool === 'text');
 
             // Update ARIA
             selectToolBtn.setAttribute('aria-pressed', activeTool === 'select');
+            handToolBtn.setAttribute('aria-pressed', activeTool === 'pan');
             penToolBtn.setAttribute('aria-pressed', activeTool === 'draw');
             textToolBtn.setAttribute('aria-pressed', activeTool === 'text');
         };
@@ -147,6 +134,12 @@ class AIBlackboard {
             this.canvasControls.setTool('select');
             updateToolUI('select');
             statusMode.textContent = 'Select Mode';
+        });
+
+        handToolBtn.addEventListener('click', () => {
+            this.canvasControls.setTool('pan');
+            updateToolUI('pan');
+            statusMode.textContent = 'Pan Mode';
         });
 
         penToolBtn.addEventListener('click', () => {
@@ -225,9 +218,10 @@ class AIBlackboard {
         const clearBtn = document.getElementById('clearBoard');
         clearBtn.addEventListener('click', () => {
             if (confirm('Clear the blackboard?')) {
-                this.renderer.clear();
-                this.chat.clearMessages();
-                this.ai.clearHistory();
+                if (confirm('Clear the blackboard?')) {
+                    this.renderer.clear();
+                    this.ai.clearHistory();
+                }
             }
         });
 

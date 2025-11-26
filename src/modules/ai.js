@@ -6,7 +6,7 @@
 class AIClient {
   constructor() {
     this.apiKey = null;
-    this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+    this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
     this.conversationHistory = [];
     this.loadApiKey();
   }
@@ -96,6 +96,68 @@ class AIClient {
       });
 
       return aiResponse;
+      return aiResponse;
+    } catch (error) {
+      console.error('AI API Error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Send a message with an image to Gemini AI
+   * @param {string} message - User prompt
+   * @param {string} imageBase64 - Base64 image data
+   * @returns {Promise<string>} - AI response
+   */
+  async sendMessageWithImage(message, imageBase64) {
+    if (!this.hasApiKey()) {
+      throw new Error('API key not configured. Please add your Gemini API key in settings.');
+    }
+
+    // Remove data:image/png;base64, prefix if present
+    const base64Data = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
+
+    // Include system prompt to guide behavior
+    const systemPrompt = this.getSystemPrompt();
+    const fullPrompt = `${systemPrompt}\n\nUser Request: ${message}`;
+
+    const payload = {
+      contents: [{
+        parts: [
+          { text: fullPrompt },
+          {
+            inline_data: {
+              mime_type: "image/png",
+              data: base64Data
+            }
+          }
+        ]
+      }],
+      generationConfig: {
+        temperature: 0.4,
+        maxOutputTokens: 2048,
+      }
+    };
+
+    try {
+      // Use gemini-2.0-flash-exp for multimodal requests
+      const response = await fetch(`${this.baseUrl}?key=${this.apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || 'API request failed');
+      }
+
+      const data = await response.json();
+      if (!data.candidates || data.candidates.length === 0) {
+        throw new Error('No response from AI');
+      }
+
+      return data.candidates[0].content.parts[0].text;
     } catch (error) {
       console.error('AI API Error:', error);
       throw error;
