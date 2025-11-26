@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="AI Blackboard - An intelligent notepad with handwriting-style AI responses and graph generation" />
+  <title>AI Blackboard - Smart Digital Notepad</title>
+
+  <!-- Google Fonts for Handwriting -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="/style.css" />
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settingsPanel">
+      <div class="panel-header">
+        <h2>Settings</h2>
+        <button class="close-btn" id="closeSettings">×</button>
+      </div>
+      <div class="panel-content">
+        <div class="setting-group">
+          <label for="apiKeyInput">Gemini API Key</label>
+          <input type="password" id="apiKeyInput" placeholder="Enter your Gemini API key" autocomplete="off" />
+          <button class="btn-primary" id="saveApiKey">Save Key</button>
+          <p class="hint">Get your key from <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI
+              Studio</a></p>
+        </div>
+
+        <div class="setting-group">
+          <label for="handwritingStyle">Handwriting Style</label>
+          <select id="handwritingStyle">
+            <option value="caveat">Casual (Caveat)</option>
+            <option value="indie">Indie Flower</option>
+            <option value="shadows">Shadows Into Light</option>
+          </select>
+        </div>
+
+        <div class="setting-group">
+          <label for="textSize">Text Size</label>
+          <input type="range" id="textSize" min="16" max="36" value="24" />
+          <span id="textSizeValue">24px</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calculator Panel -->
+    <div class="calculator-panel" id="calculatorPanel">
+      <div class="panel-header">
+        <h2>Calculator</h2>
+        <button class="close-btn" id="closeCalculator">×</button>
+      </div>
+      <div class="calc-display">
+        <div class="calc-history" id="calcHistory"></div>
+        <div class="calc-input" id="calcInput">0</div>
+      </div>
+      <div class="calc-keypad">
+        <button class="calc-btn op" data-action="clear">C</button>
+        <button class="calc-btn op" data-action="backspace">⌫</button>
+        <button class="calc-btn op" data-action="percent">%</button>
+        <button class="calc-btn op" data-action="divide">÷</button>
+
+        <button class="calc-btn num" data-val="7">7</button>
+        <button class="calc-btn num" data-val="8">8</button>
+        <button class="calc-btn num" data-val="9">9</button>
+        <button class="calc-btn op" data-action="multiply">×</button>
+
+        <button class="calc-btn num" data-val="4">4</button>
+        <button class="calc-btn num" data-val="5">5</button>
+        <button class="calc-btn num" data-val="6">6</button>
+        <button class="calc-btn op" data-action="subtract">−</button>
+
+        <button class="calc-btn num" data-val="1">1</button>
+        <button class="calc-btn num" data-val="2">2</button>
+        <button class="calc-btn num" data-val="3">3</button>
+        <button class="calc-btn op" data-action="add">+</button>
+
+        <button class="calc-btn num zero" data-val="0">0</button>
+        <button class="calc-btn num" data-val=".">.</button>
+        <button class="calc-btn action" data-action="equals">=</button>
+      </div>
+      <div class="calc-footer">
+        <button class="btn-primary full-width" id="insertCalcResult">Insert to Canvas</button>
+      </div>
+    </div>
+
+    <!-- Main Header - Minimalist -->
+    <header class="app-header">
+      <div class="header-left">
+        <h1 class="header-title">AI Blackboard</h1>
+        <span class="header-badge">//01</span>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="calculatorBtn" title="Calculator" aria-label="Calculator">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 7h10v2H7zm0 4h2v2H7zm0 4h2v2H7zm4-4h2v2h-2zm0 4h2v2h-2zm4-4h2v2h-2zm0 4h2v2h-2z" />
+          </svg>
+        </button>
+        <button class="icon-btn" id="clearBoard" title="Clear Blackboard" aria-label="Clear blackboard">
+          <svg viewBox="0 0 24 24">
+            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+          </svg>
+        </button>
+        <button class="icon-btn" id="settingsBtn" title="Settings" aria-label="Settings">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Blackboard Canvas -->
+      <div class="blackboard-container">
+        <div class="blackboard-wrapper">
+          <canvas id="blackboard" class="blackboard-canvas"></canvas>
+          <div class="loading-indicator" id="loadingIndicator">
+            <div class="spinner"></div>
+            <p>AI is writing...</p>
+          </div>
+        </div>
+
+
+        <!-- Simplified Toolbar -->
+        <div class="toolbar">
+          <!-- Tools Group (Primary) -->
+          <div class="tool-group-primary">
+            <button class="tool-btn tool-btn-large active" id="selectTool" title="Select Tool (V)"
+              aria-label="Select tool" aria-pressed="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M7 2l12 11.2-5.8.5 3.3 7.3-2.2.9-3.2-7.4-4.4 4.6z" />
+              </svg>
+            </button>
+            <button class="tool-btn tool-btn-large" id="penTool" title="Pen Tool (P)" aria-label="Pen tool"
+              aria-pressed="false">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="tool-separator"></div>
+
+          <!-- Insert Group -->
+          <div class="tool-group-insert">
+            <button class="tool-btn" id="textTool" title="Text Tool (T)" aria-label="Text tool">
+              <svg viewBox="0 0 24 24">
+                <path d="M5 4v3h5.5v12h3V7H19V4z" />
+              </svg>
+            </button>
+            <button class="tool-btn" id="imageTool" title="Insert Image (I)" aria-label="Insert image">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
+              </svg>
+            </button>
+            <input type="file" id="imageInput" accept="image/*" style="display: none;">
+          </div>
+
+          <div class="tool-separator"></div>
+
+          <!-- Actions Group -->
+          <div class="tool-group-actions">
+            <button class="tool-btn" id="undoBtn" title="Undo (Ctrl+Z)" aria-label="Undo">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z" />
+              </svg>
+            </button>
+            <button class="tool-btn" id="redoBtn" title="Redo (Ctrl+Shift+Z)" aria-label="Redo">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M18.4 10.6C16.55 9 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22L3.9 16c1.05-3.19 4.05-5.5 7.6-5.5 1.95 0 3.73.72 5.12 1.88L13 16h9V7l-3.6 3.6z" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="tool-separator"></div>
+
+          <!-- View Group -->
+          <div class="tool-group-view">
+            <button class="tool-btn tool-btn-small" id="zoomOutBtn" title="Zoom Out" aria-label="Zoom out">
+              <svg viewBox="0 0 24 24">
+                <path d="M19 13H5v-2h14v2z" />
+              </svg>
+            </button>
+            <span class="zoom-level" id="zoomLevel">100%</span>
+            <button class="tool-btn tool-btn-small" id="zoomInBtn" title="Zoom In" aria-label="Zoom in">
+              <svg viewBox="0 0 24 24">
+                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+          <span class="status-mode" id="statusMode">Select Mode</span>
+          <span class="status-separator">|</span>
+          <span class="status-selection" id="statusSelection">No selection</span>
+          <span class="status-separator">|</span>
+          <span class="status-zoom" id="statusZoom">100%</span>
+          <span class="status-separator">|</span>
+          <span class="status-save" id="statusSave">Saved</span>
+        </div>
+      </div>
+
+      <!-- Chat Toggle Button (Floating) -->
+      <button class="chat-toggle" id="chatToggle" title="Toggle Chat (C)" aria-label="Toggle chat">
+        <svg viewBox="0 0 24 24">
+          <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+        </svg>
+      </button>
+
+      <!-- Chat Interface (Collapsible) -->
+      <aside class="chat-sidebar" id="chatSidebar">
+        <div class="chat-header">
+          <h2>Chat with AI</h2>
+          <button class="chat-close" id="chatClose" aria-label="Close chat">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+          <div class="welcome-message">
+            <p>👋 Welcome! Ask me anything and I'll write it on the blackboard in beautiful handwriting.</p>
+            <p>Try asking me to:</p>
+            <ul>
+              <li>Explain a concept</li>
+              <li>Plot a function like "y = sin(x)"</li>
+              <li>Create a chart</li>
+              <li>Solve a problem</li>
+            </ul>
+            <p style="margin-top: 12px; font-size: 0.9em; opacity: 0.8;">💡 <strong>Canvas Navigation:</strong><br>
+              • Hold <code>Space</code> + drag to pan<br>
+              • Mouse wheel to zoom<br>
+              • Use toolbar buttons to zoom in/out
+            </p>
+          </div>
+        </div>
+
+        <div class="chat-input-container">
+          <textarea id="chatInput" placeholder="Ask me anything..." rows="3"></textarea>
+          <button class="btn-send" id="sendBtn">
+            <svg class="send-icon" viewBox="0 0 24 24">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+            </svg>
+            Send
+          </button>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script type="module" src="/main.js"></script>
+</body>
+
+</html>

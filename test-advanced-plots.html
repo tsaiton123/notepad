@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Advanced Plotting Tests</title>
+    <style>
+        body {
+            background: #0a0e1a;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .test-section {
+            margin: 20px 0;
+        }
+
+        canvas {
+            border: 2px solid #333;
+            background: #1a1f2e;
+            margin: 10px 0;
+        }
+
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        h3 {
+            color: #6366f1;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Advanced Mathematical Plotting Tests</h1>
+
+    <div class="test-section">
+        <h3>1. Compound Functions</h3>
+        <button onclick="plotCompound1()">sin(x) + cos(x)</button>
+        <button onclick="plotCompound2()">sin(x) * cos(x)</button>
+        <button onclick="plotCompound3()">2*sin(x) - cos(2*x)</button>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Polynomial Functions</h3>
+        <button onclick="plotPoly1()">x³ - 3x² + 2x - 1</button>
+        <button onclick="plotPoly2()">x⁴ - 4x² + 2</button>
+        <button onclick="plotPoly3()">0.1*x⁵ - x³ + 2*x</button>
+    </div>
+
+    <div class="test-section">
+        <h3>3. Complex Expressions</h3>
+        <button onclick="plotComplex1()">sqrt(abs(x))</button>
+        <button onclick="plotComplex2()">exp(-x^2/10)</button>
+        <button onclick="plotComplex3()">log(abs(x) + 1)</button>
+    </div>
+
+    <div class="test-section">
+        <h3>4. Rational Functions</h3>
+        <button onclick="plotRational1()">1/x</button>
+        <button onclick="plotRational2()">1/(x^2 + 1)</button>
+        <button onclick="plotRational3()">x/(x^2 - 4)</button>
+    </div>
+
+    <canvas id="testCanvas" width="900" height="500"></canvas>
+
+    <script type="module">
+        import PlottingTools from './src/utils/plottingTools.js';
+
+        const canvas = document.getElementById('testCanvas');
+        const ctx = canvas.getContext('2d');
+        const tools = new PlottingTools(canvas, ctx);
+
+        function clearCanvas() {
+            ctx.fillStyle = '#1a1f2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Compound Functions
+        window.plotCompound1 = async function () {
+            clearCanvas();
+            await tools.plotFunction({
+                expression: 'sin(x) + cos(x)',
+                xMin: -10,
+                xMax: 10,
+                x: 50,
+                y: 50,
+                width: 800,
+                height: 400,
+                color: '#6366f1'
+            });
+        };
+
+        window.plotCompound2 = async function () {
+            clearCanvas();
+            await tools.plotFunction({
+                expression: 'sin(x) * cos(x)',
+                xMin: -10,
+                xMax: 10,
+                x: 50,
+                y: 50,
+                width: 800,
+                height: 400,
+                color: '#8b5cf6'
+            });
+        };
+
+        window.plotCompound3 = async function () {
+            clearCanvas();
+            await tools.plotFunction({
+                expression: '2*sin(x) - cos(2*x)',
+                xMin: -10,
+                xMax: 10,
+                x: 50,
+                y: 50,
+                width: 800,
+                height: 400,
+                color: '#ec4899'
+            });
+        };
+
+        // Polynomial Functions
+        window.plotPoly1 = async function () {
+            clearCanvas();
+            await tools.plotFunction({
+                expression: 'x^3 - 3*x^2 + 2*x - 1',
+                xMin: -2,
+                xMax: 4,
+                x: 50,
+                y: 50,
+                width: 800,
+                height: 400,
+                color: '#10b981'
+            });
+        };
+
+        window.plotPoly2 = async function () {
+            clearCanvas();
+            await tools.plotFunction({
+                expression: 'x^4 - 4*x^2 + 2',
+                xMin: -3,
+                xMax: 3,
+                x: 50,
+                y: 50,
+                width: 800,
+                height: 400,
+                color: '#f59e0b'
+            });
+        };
+
+        window.plotPoly3 = async function () {
+            clearCanvas();
+            await tools.plotFunction({
+                expression: '0.1*x^5 - x^3 + 2*x',
+                xMin: -4,
+                xMax: 4,
+                x: 50,
+                y: 50,
+                width: 800,
+                height: 400,
+                color: '#ef4444'
+            });
+        };
+
+        // Complex Expressions
+        window.plotComplex1 = async function () {
+            clearCanvas();
+            await tools.plotFunction({
+                expression: 'sqrt(abs(x))',
+                xMin: -10,
+                xMax: 10,
+                x: 50,
+                y: 50,
+                width: 800,
+                height: 400,
+                color: '#06b6d4'
+            });
+        };
+
+        window.plotComplex2 = async function () {
+            clearCanvas();
+            await tools.plotFunction({
+                expression: 'exp(-x^2/10)',
+                xMin: -5,
+                xMax: 5,
+                x: 50,
+                y: 50,
+                width: 800,
+                height: 400,
+                color: '#8b5cf6'
+            });
+        };
+
+        window.plotComplex3 = async function () {
+            clearCanvas();
+            await tools.plotFunction({
+                expression: 'log(abs(x) + 1)',
+                xMin: -10,
+                xMax: 10,
+                x: 50,
+                y: 50,
+                width: 800,
+                height: 400,
+                color: '#14b8a6'
+            });
+        };
+
+        // Rational Functions
+        window.plotRational1 = async function () {
+            clearCanvas();
+            await tools.plotFunction({
+                expression: '1/x',
+                xMin: -10,
+                xMax: 10,
+                x: 50,
+                y: 50,
+                width: 800,
+                height: 400,
+                color: '#f97316'
+            });
+        };
+
+        window.plotRational2 = async function () {
+            clearCanvas();
+            await tools.plotFunction({
+                expression: '1/(x^2 + 1)',
+                xMin: -5,
+                xMax: 5,
+                x: 50,
+                y: 50,
+                width: 800,
+                height: 400,
+                color: '#a855f7'
+            });
+        };
+
+        window.plotRational3 = async function () {
+            clearCanvas();
+            await tools.plotFunction({
+                expression: 'x/(x^2 - 4)',
+                xMin: -5,
+                xMax: 5,
+                x: 50,
+                y: 50,
+                width: 800,
+                height: 400,
+                color: '#ec4899'
+            });
+        };
+
+        // Plot first example on load
+        plotCompound1();
+    </script>
+</body>
+
+</html>

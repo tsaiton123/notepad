@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Plotting Test</title>
+    <style>
+        body {
+            background: #0a0e1a;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        canvas {
+            border: 2px solid #333;
+            background: #1a1f2e;
+        }
+
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Plotting Tools Test</h1>
+    <div>
+        <button onclick="plotX2()">Plot y = x²</button>
+        <button onclick="plotSin()">Plot y = sin(x)</button>
+        <button onclick="plotCos()">Plot y = cos(x)</button>
+    </div>
+    <br>
+    <canvas id="testCanvas" width="800" height="400"></canvas>
+
+    <script type="module">
+        import PlottingTools from './src/utils/plottingTools.js';
+
+        const canvas = document.getElementById('testCanvas');
+        const ctx = canvas.getContext('2d');
+        const tools = new PlottingTools(canvas, ctx);
+
+        window.plotX2 = async function () {
+            ctx.fillStyle = '#1a1f2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            await tools.plotFunction({
+                expression: 'x^2',
+                xMin: -5,
+                xMax: 5,
+                x: 50,
+                y: 50,
+                width: 700,
+                height: 300
+            });
+        };
+
+        window.plotSin = async function () {
+            ctx.fillStyle = '#1a1f2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            await tools.plotFunction({
+                expression: 'sin(x)',
+                xMin: -10,
+                xMax: 10,
+                x: 50,
+                y: 50,
+                width: 700,
+                height: 300
+            });
+        };
+
+        window.plotCos = async function () {
+            ctx.fillStyle = '#1a1f2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            await tools.plotFunction({
+                expression: 'cos(x)',
+                xMin: -10,
+                xMax: 10,
+                x: 50,
+                y: 50,
+                width: 700,
+                height: 300
+            });
+        };
+
+        // Plot x^2 on load
+        plotX2();
+    </script>
+</body>
+
+</html>
