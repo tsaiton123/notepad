@@ -62,33 +62,77 @@
         <div class="calc-history" id="calcHistory"></div>
         <div class="calc-input" id="calcInput">0</div>
       </div>
-      <div class="calc-keypad">
-        <button class="calc-btn op" data-action="clear">C</button>
-        <button class="calc-btn op" data-action="backspace">⌫</button>
-        <button class="calc-btn op" data-action="percent">%</button>
-        <button class="calc-btn op" data-action="divide">÷</button>
+      <div class="calc-body">
+        <div class="calc-sci-keys">
+          <!-- Row 1 -->
+          <button class="calc-btn fn" data-action="(">(</button>
+          <button class="calc-btn fn" data-action=")">)</button>
+          <button class="calc-btn fn" data-action="mc">mc</button>
+          <button class="calc-btn fn" data-action="m+">m+</button>
+          <button class="calc-btn fn" data-action="m-">m-</button>
+          <button class="calc-btn fn" data-action="mr">mr</button>
+          <!-- Row 2 -->
+          <button class="calc-btn fn" data-action="2nd">2nd</button>
+          <button class="calc-btn fn" data-action="square">x²</button>
+          <button class="calc-btn fn" data-action="cube">x³</button>
+          <button class="calc-btn fn" data-action="power">xʸ</button>
+          <button class="calc-btn fn" data-action="epower">eˣ</button>
+          <button class="calc-btn fn" data-action="10power">10ˣ</button>
+          <!-- Row 3 -->
+          <button class="calc-btn fn" data-action="inverse">1/x</button>
+          <button class="calc-btn fn" data-action="sqrt">²√x</button>
+          <button class="calc-btn fn" data-action="cbrt">³√x</button>
+          <button class="calc-btn fn" data-action="yroot">ʸ√x</button>
+          <button class="calc-btn fn" data-action="ln">ln</button>
+          <button class="calc-btn fn" data-action="log10">log₁₀</button>
+          <!-- Row 4 -->
+          <button class="calc-btn fn" data-action="factorial">x!</button>
+          <button class="calc-btn fn" data-action="sin">sin</button>
+          <button class="calc-btn fn" data-action="cos">cos</button>
+          <button class="calc-btn fn" data-action="tan">tan</button>
+          <button class="calc-btn fn" data-action="e">e</button>
+          <button class="calc-btn fn" data-action="ee">EE</button>
+          <!-- Row 5 -->
+          <button class="calc-btn fn" data-action="rad">Rad</button>
+          <button class="calc-btn fn" data-action="sinh">sinh</button>
+          <button class="calc-btn fn" data-action="cosh">cosh</button>
+          <button class="calc-btn fn" data-action="tanh">tanh</button>
+          <button class="calc-btn fn" data-action="pi">π</button>
+          <button class="calc-btn fn" data-action="rand">Rand</button>
+        </div>
+        <div class="calc-basic-keys">
+          <button class="calc-btn op" data-action="clear">AC</button>
+          <button class="calc-btn op" data-action="negate">+/-</button>
+          <button class="calc-btn op" data-action="percent">%</button>
+          <button class="calc-btn op" data-action="divide">÷</button>
 
-        <button class="calc-btn num" data-val="7">7</button>
-        <button class="calc-btn num" data-val="8">8</button>
-        <button class="calc-btn num" data-val="9">9</button>
-        <button class="calc-btn op" data-action="multiply">×</button>
+          <button class="calc-btn num" data-val="7">7</button>
+          <button class="calc-btn num" data-val="8">8</button>
+          <button class="calc-btn num" data-val="9">9</button>
+          <button class="calc-btn op" data-action="multiply">×</button>
 
-        <button class="calc-btn num" data-val="4">4</button>
-        <button class="calc-btn num" data-val="5">5</button>
-        <button class="calc-btn num" data-val="6">6</button>
-        <button class="calc-btn op" data-action="subtract">−</button>
+          <button class="calc-btn num" data-val="4">4</button>
+          <button class="calc-btn num" data-val="5">5</button>
+          <button class="calc-btn num" data-val="6">6</button>
+          <button class="calc-btn op" data-action="subtract">−</button>
 
-        <button class="calc-btn num" data-val="1">1</button>
-        <button class="calc-btn num" data-val="2">2</button>
-        <button class="calc-btn num" data-val="3">3</button>
-        <button class="calc-btn op" data-action="add">+</button>
+          <button class="calc-btn num" data-val="1">1</button>
+          <button class="calc-btn num" data-val="2">2</button>
+          <button class="calc-btn num" data-val="3">3</button>
+          <button class="calc-btn op" data-action="add">+</button>
 
-        <button class="calc-btn num zero" data-val="0">0</button>
-        <button class="calc-btn num" data-val=".">.</button>
-        <button class="calc-btn action" data-action="equals">=</button>
+          <button class="calc-btn num zero" data-val="0">0</button>
+          <button class="calc-btn num" data-val=".">.</button>
+          <button class="calc-btn action" data-action="equals">=</button>
+        </div>
       </div>
       <div class="calc-footer">
-        <button class="btn-primary full-width" id="insertCalcResult">Insert to Canvas</button>
+        <button class="calc-mode-toggle" id="calcModeToggle" title="Toggle Scientific Mode">
+          <svg viewBox="0 0 24 24" width="20" height="20">
+            <path d="M7 2l12 11.2-5.8.5 3.3 7.3-2.2.9-3.2-7.4-4.4 4.6z" />
+          </svg>
+        </button>
+        <button class="btn-primary" id="insertCalcResult">Insert</button>
       </div>
     </div>
 

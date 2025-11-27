@@ -29,10 +29,11 @@ class CanvasControls {
 
         // Marquee selection state
         this.isMarqueeSelecting = false;
-        this.marqueeStartX = 0;
-        this.marqueeStartY = 0;
-        this.marqueeCurrentX = 0;
-        this.marqueeCurrentY = 0;
+        this.marqueeStart = { x: 0, y: 0 };
+        this.marqueeEnd = { x: 0, y: 0 };
+
+        this.mouseX = 0;
+        this.mouseY = 0;
 
         // Drawing state
         this.isDrawing = false;
@@ -84,6 +85,10 @@ class CanvasControls {
         // Keyboard events for space key
         window.addEventListener('keydown', (e) => this.handleKeyDown(e));
         window.addEventListener('keyup', (e) => this.handleKeyUp(e));
+
+        // System Copy/Paste
+        window.addEventListener('copy', (e) => this.handleCopy(e));
+        window.addEventListener('paste', (e) => this.handlePaste(e));
 
         // Mouse events for panning
         this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e));
@@ -149,25 +154,6 @@ class CanvasControls {
 
         // Keyboard shortcuts with Ctrl/Cmd
         if (ctrlKey) {
-            // Ctrl+C - Copy
-            if (e.key === 'c' || e.key === 'C') {
-                e.preventDefault();
-                this.renderer.elementManager.copySelected();
-                console.log('Copied', this.renderer.elementManager.getSelectedElements().length, 'elements');
-                return;
-            }
-
-            // Ctrl+V - Paste
-            if (e.key === 'v' || e.key === 'V') {
-                e.preventDefault();
-                const pasted = this.renderer.elementManager.paste();
-                if (pasted.length > 0) {
-                    this.renderer.redrawCanvas();
-                    console.log('Pasted', pasted.length, 'elements');
-                }
-                return;
-            }
-
             // Ctrl+D - Duplicate
             if (e.key === 'd' || e.key === 'D') {
                 e.preventDefault();
@@ -383,6 +369,10 @@ class CanvasControls {
      * Handle mouse move - Pan, drag elements, or update marquee
      */
     handleMouseMove(e) {
+        const rect = this.canvas.getBoundingClientRect();
+        this.mouseX = e.clientX;
+        this.mouseY = e.clientY;
+
         if (this.isPanning) {
             const dx = e.clientX - this.lastX;
             const dy = e.clientY - this.lastY;
@@ -776,6 +766,95 @@ class CanvasControls {
             img.src = e.target.result;
         };
         reader.readAsDataURL(file);
+    }
+    handleCopy(e) {
+        if (this.renderer.elementManager.hasSelection()) {
+            // e.preventDefault(); // Don't prevent default if we want to allow copying text from inputs? 
+            // But we are on canvas.
+            e.preventDefault();
+            const json = this.renderer.elementManager.copySelected();
+            if (json) {
+                e.clipboardData.setData('text/plain', json);
+            }
+        }
+    }
+
+    handlePaste(e) {
+        // Only handle if not in an input field
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+        e.preventDefault();
+        const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+
+        // Determine paste position
+        const rect = this.canvas.getBoundingClientRect();
+        let x, y;
+
+        if (this.mouseX >= rect.left && this.mouseX <= rect.right &&
+            this.mouseY >= rect.top && this.mouseY <= rect.bottom) {
+            const screenX = this.mouseX - rect.left;
+            const screenY = this.mouseY - rect.top;
+            const canvasCoords = this.renderer.screenToCanvas(screenX, screenY);
+            x = canvasCoords.x;
+            y = canvasCoords.y;
+        } else {
+            // Center
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const canvasCoords = this.renderer.screenToCanvas(centerX, centerY);
+            x = canvasCoords.x;
+            y = canvasCoords.y;
+        }
+
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            if (item.kind === 'file' && item.type.startsWith('image/')) {
+                const blob = item.getAsFile();
+                this.insertImage(blob, x, y);
+                return;
+            } else if (item.kind === 'string' && item.type === 'text/plain') {
+                item.getAsString((text) => {
+                    // Try to parse as JSON first (internal paste)
+                    const pastedElements = this.renderer.elementManager.pasteFromJSON(text, x, y);
+                    if (pastedElements.length > 0) {
+                        this.renderer.redrawCanvas();
+                    } else {
+                        // Treat as plain text
+                        this.insertText(text, x, y);
+                    }
+                });
+                return;
+            }
+        }
+    }
+
+    insertText(text, x, y) {
+        const lines = text.split('\n');
+        const element = this.renderer.elementManager.addElement('text', {
+            text: text,
+            lines: lines,
+            fontSize: this.renderer.fontSize,
+            fontFamily: this.renderer.fontFamily,
+            color: '#ffffff',
+            lineHeight: this.renderer.lineHeight,
+            padding: 0
+        }, x, y);
+
+        this.renderer.ctx.font = `${this.renderer.fontSize}px ${this.renderer.fontFamily}`;
+        let maxWidth = 0;
+        lines.forEach(line => {
+            const metrics = this.renderer.ctx.measureText(line);
+            maxWidth = Math.max(maxWidth, metrics.width);
+        });
+        element.width = maxWidth;
+        element.height = lines.length * this.renderer.lineHeight;
+
+        if (this.commandManager) {
+            const createCommand = new CreateCommand(this.renderer.elementManager, element);
+            this.commandManager.executeCommand(createCommand);
+        }
+
+        this.renderer.redrawCanvas();
     }
 }
 

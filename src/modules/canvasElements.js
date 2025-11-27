@@ -211,15 +211,19 @@ class CanvasElementManager {
      */
 
     copySelected() {
-        if (this.selectedElements.length === 0) return;
+        if (this.selectedElements.length === 0) return null;
 
         // Deep copy selected elements data
         this.clipboard = this.selectedElements.map(el => ({
             type: el.type,
             data: { ...el.data },
             width: el.width,
-            height: el.height
+            height: el.height,
+            x: el.x,
+            y: el.y
         }));
+
+        return JSON.stringify(this.clipboard);
     }
 
     paste(offsetX = 20, offsetY = 20) {
@@ -229,9 +233,9 @@ class CanvasElementManager {
 
         this.clipboard.forEach(elData => {
             // Find original element to get position
-            const firstSelected = this.selectedElements[0];
-            const x = (firstSelected?.x || 40) + offsetX;
-            const y = (firstSelected?.y || 40) + offsetY;
+            // Use stored x/y if available (from new copySelected), else fallback
+            const x = (elData.x || 0) + offsetX;
+            const y = (elData.y || 0) + offsetY;
 
             const newEl = this.addElement(elData.type, elData.data, x, y);
             newEl.width = elData.width;
@@ -244,9 +248,45 @@ class CanvasElementManager {
         return newElements;
     }
 
+    pasteFromJSON(json, targetX, targetY) {
+        try {
+            const clipboardData = JSON.parse(json);
+            if (!Array.isArray(clipboardData)) return [];
+
+            // Calculate bounding box of clipboard items
+            let minX = Infinity;
+            let minY = Infinity;
+            clipboardData.forEach(el => {
+                minX = Math.min(minX, el.x);
+                minY = Math.min(minY, el.y);
+            });
+
+            const newElements = [];
+            clipboardData.forEach(elData => {
+                // Calculate relative position
+                const dx = elData.x - minX;
+                const dy = elData.y - minY;
+
+                const x = targetX + dx;
+                const y = targetY + dy;
+
+                const newEl = this.addElement(elData.type, elData.data, x, y);
+                newEl.width = elData.width;
+                newEl.height = elData.height;
+                newElements.push(newEl);
+            });
+
+            this.selectedElements = newElements;
+            return newElements;
+        } catch (e) {
+            console.error('Paste error', e);
+            return [];
+        }
+    }
+
     duplicateSelected() {
         this.copySelected();
-        return this.paste();
+        return this.paste(20, 20);
     }
 
     deleteSelected() {
