@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Import Prototype</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="controls">
+        <button id="convertBtn">Convert Selected</button>
+        <div class="divider"></div>
+        <button id="markTextBtn">Mark as Text</button>
+        <button id="markImageBtn">Mark as Image/Formula</button>
+        <div class="divider"></div>
+        <div class="legend">
+            <span class="legend-item text">Text</span>
+            <span class="legend-item image">Image</span>
+            <span class="legend-item graphic">Graphic/Formula</span>
+        </div>
+    </div>
+
+    <div class="workspace">
+        <div class="pdf-container" id="pdfContainer">
+            <div class="canvas-wrapper" id="canvasWrapper">
+                <canvas id="pdfCanvas"></canvas>
+                <div id="overlayLayer"></div>
+            </div>
+        </div>
+
+        <div class="output-container">
+            <h3>Converted Elements</h3>
+            <div id="outputContent"></div>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+
+</html>

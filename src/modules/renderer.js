@@ -175,6 +175,7 @@ class BlackboardRenderer {
 
         this.setFont();
         this.ctx.fillStyle = this.textColor;
+        this.ctx.textBaseline = 'top';
 
         for (let i = 0; i < chars.length; i++) {
             const char = chars[i];
@@ -470,9 +471,10 @@ class BlackboardRenderer {
 
         // Create temporary canvas
         const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = width;
-        tempCanvas.height = height;
+        tempCanvas.width = width * this.scale;
+        tempCanvas.height = height * this.scale;
         const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.scale(this.scale, this.scale);
 
         // Fill background (blackboard color)
         tempCtx.fillStyle = '#1a1f2e';
@@ -545,6 +547,7 @@ class BlackboardRenderer {
         const data = element.data;
         this.ctx.font = `${data.fontSize}px ${data.fontFamily}`;
         this.ctx.fillStyle = data.color;
+        this.ctx.textBaseline = 'top';
 
         let currentY = element.y;
         for (const line of data.lines) {

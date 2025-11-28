@@ -6,6 +6,7 @@
 import AIClient from './src/modules/ai.js';
 import BlackboardRenderer from './src/modules/renderer.js';
 import ContextToolbar from './src/modules/contextToolbar.js';
+import PDFImporter from './src/modules/pdfImporter.js';
 import CanvasControls from './src/modules/canvasControls.js';
 import Calculator from './src/modules/calculator.js';
 import { CommandManager } from './src/core/CommandManager.js';
@@ -22,7 +23,10 @@ class AIBlackboard {
         this.calculator = null;
         this.commandManager = null;
         this.storageManager = null;
+        this.pdfImporter = null;
         this.isProcessing = false;
+
+        window.app = this; // For debugging and verification
 
         this.init();
     }
@@ -59,6 +63,9 @@ class AIBlackboard {
 
         // Initialize Context Toolbar
         this.contextToolbar = new ContextToolbar(this.renderer, this.ai, this.commandManager);
+
+        // Initialize PDF Importer
+        this.pdfImporter = new PDFImporter(this.renderer, this.commandManager);
 
         // Listen for interactions to update toolbar
         this.canvasControls.canvas.addEventListener('mouseup', () => {
@@ -114,6 +121,7 @@ class AIBlackboard {
         const penToolBtn = document.getElementById('penTool');
         const textToolBtn = document.getElementById('textTool');
         const imageToolBtn = document.getElementById('imageTool');
+        const pdfToolBtn = document.getElementById('pdfTool');
         const imageInput = document.getElementById('imageInput');
         const statusMode = document.getElementById('statusMode');
 
@@ -157,6 +165,12 @@ class AIBlackboard {
         imageToolBtn.addEventListener('click', () => {
             imageInput.click();
         });
+
+        if (pdfToolBtn) {
+            pdfToolBtn.addEventListener('click', () => {
+                this.pdfImporter.open();
+            });
+        }
 
         imageInput.addEventListener('change', (e) => {
             if (e.target.files && e.target.files[0]) {

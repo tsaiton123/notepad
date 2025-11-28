@@ -43,7 +43,16 @@ class ContextToolbar {
         deleteBtn.title = 'Delete';
         deleteBtn.onclick = () => this.deleteSelection();
 
+        // Merge Button (only if multiple items selected)
+        const mergeBtn = document.createElement('button');
+        mergeBtn.className = 'context-btn merge-btn';
+        mergeBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h6v6h-6zM2 2v20h20V2H2zm18 18H4V4h16v16z"/></svg>';
+        mergeBtn.title = 'Merge';
+        mergeBtn.style.display = 'none'; // Hidden by default
+        mergeBtn.onclick = () => this.mergeSelection();
+
         this.toolbar.appendChild(aiBtn);
+        this.toolbar.appendChild(mergeBtn);
         this.toolbar.appendChild(deleteBtn);
 
         // AI Popover
@@ -106,6 +115,12 @@ class ContextToolbar {
             maxY = Math.max(maxY, el.y + el.height);
         });
 
+        // Show/Hide Merge button
+        const mergeBtn = this.toolbar.querySelector('.merge-btn');
+        if (mergeBtn) {
+            mergeBtn.style.display = selected.length > 1 ? 'flex' : 'none';
+        }
+
         // Convert to screen coords
         const screenPos = this.renderer.canvasToScreen(minX, minY);
         const screenMax = this.renderer.canvasToScreen(maxX, maxY);
@@ -135,6 +150,51 @@ class ContextToolbar {
     deleteSelection() {
         // Dispatch delete key event to be handled by CanvasControls
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete', code: 'Delete' }));
+    }
+
+    async mergeSelection() {
+        const selected = this.activeSelection;
+        if (selected.length < 2) return;
+
+        try {
+            // 1. Capture selection as image
+            const imageBase64 = await this.renderer.captureSelectionAsImage(selected);
+
+            // 2. Calculate bounding box
+            let minX = Infinity, minY = Infinity;
+            selected.forEach(el => {
+                minX = Math.min(minX, el.x);
+                minY = Math.min(minY, el.y);
+            });
+
+            // 3. Create new Image Element
+            const img = new Image();
+            img.src = imageBase64;
+            await new Promise(resolve => img.onload = resolve);
+
+            const element = this.renderer.elementManager.addElement('image', {
+                src: imageBase64,
+                originalWidth: img.width,
+                originalHeight: img.height
+            }, minX, minY);
+
+            // Adjust dimensions for scale (since image is captured at device pixel ratio)
+            element.width = img.width / this.renderer.scale;
+            element.height = img.height / this.renderer.scale;
+
+            // 4. Add to canvas via Command
+            if (this.commandManager) {
+                this.commandManager.executeCommand(new CreateCommand(this.renderer.elementManager, element));
+            }
+
+            // 5. Delete original elements
+            this.deleteSelection();
+
+            this.renderer.redrawCanvas();
+
+        } catch (error) {
+            console.error('Merge failed:', error);
+        }
     }
 
     async submitAIRequest(prompt) {
