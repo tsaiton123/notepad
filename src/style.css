@@ -18,6 +18,7 @@ a {
   color: #646cff;
   text-decoration: inherit;
 }
+
 a:hover {
   color: #535bf2;
 }
@@ -48,9 +49,11 @@ h1 {
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.vanilla:hover {
   filter: drop-shadow(0 0 2em #f7df1eaa);
 }
@@ -74,9 +77,11 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
 button:hover {
   border-color: #646cff;
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -87,10 +92,85 @@ button:focus-visible {
     color: #213547;
     background-color: #ffffff;
   }
+
   a:hover {
     color: #747bff;
   }
+
   button {
     background-color: #f9f9f9;
   }
+}
+
+/* Auth Styles */
+.auth-card {
+  background: #1a1a1a;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+@media (prefers-color-scheme: light) {
+  .auth-card {
+    background: #f0f0f0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.input-group {
+  margin-bottom: 1rem;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #aaa;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #333;
+  border-radius: 4px;
+  background: #242424;
+  color: white;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+@media (prefers-color-scheme: light) {
+  .input-group input {
+    background: #ffffff;
+    border-color: #ccc;
+    color: #213547;
+  }
+}
+
+.input-group input:focus {
+  border-color: #646cff;
+  outline: none;
+}
+
+.toggle-auth {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+#auth-message {
+  margin-top: 1rem;
+  text-align: center;
+  min-height: 1.5em;
+  font-size: 0.9rem;
+}
+
+#auth-message.error {
+  color: #ff4444;
+}
+
+#auth-message.success {
+  color: #44ff44;
 }

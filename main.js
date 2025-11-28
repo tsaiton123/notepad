@@ -13,6 +13,8 @@ import { CommandManager } from './src/core/CommandManager.js';
 import StorageManager from './src/managers/StorageManager.js';
 import { getDemoResponse, simulateDelay } from './src/utils/demoMode.js';
 import './style.css';
+import { setupAuthModal } from './src/components/AuthModal.js';
+import { getUser, signOut, onAuthStateChange } from './src/services/auth.js';
 
 class AIBlackboard {
     constructor() {
@@ -392,6 +394,84 @@ class AIBlackboard {
 }
 
 // Initialize the application
-const app = new AIBlackboard();
+// const app = new AIBlackboard();
+
+const startApp = (user) => {
+    const appContainer = document.querySelector('.app-container');
+    if (appContainer) appContainer.style.display = 'block';
+
+    const authContainer = document.getElementById('auth-container');
+    if (authContainer) authContainer.remove();
+
+    if (!window.app) {
+        window.app = new AIBlackboard();
+
+        // Add Logout Button
+        const headerActions = document.querySelector('.header-actions');
+        if (headerActions && !document.getElementById('logoutBtn')) {
+            const logoutBtn = document.createElement('button');
+            logoutBtn.id = 'logoutBtn';
+            logoutBtn.className = 'icon-btn';
+            logoutBtn.title = 'Sign Out';
+            logoutBtn.innerHTML = `
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+            `;
+            logoutBtn.addEventListener('click', async () => {
+                await signOut();
+            });
+            headerActions.appendChild(logoutBtn);
+        }
+    }
+};
+
+const showAuth = () => {
+    const appContainer = document.querySelector('.app-container');
+    if (appContainer) appContainer.style.display = 'none';
+
+    let authContainer = document.getElementById('auth-container');
+    if (!authContainer) {
+        authContainer = document.createElement('div');
+        authContainer.id = 'auth-container';
+        authContainer.style.cssText = 'display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; background-color: var(--bg-color);';
+        document.body.appendChild(authContainer);
+    }
+
+    authContainer.innerHTML = `
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <h1 style="font-size: 3rem; margin-bottom: 0.5rem;">Blackboard</h1>
+            <p style="color: #888;">Please sign in to continue</p>
+        </div>
+        <div id="auth-modal-mount"></div>
+    `;
+
+    setupAuthModal(document.getElementById('auth-modal-mount'));
+};
+
+const initApp = async () => {
+    const user = await getUser();
+    if (user) {
+        startApp(user);
+    } else {
+        showAuth();
+    }
+};
+
+initApp();
+
+onAuthStateChange((event, session) => {
+    if (session?.user) {
+        startApp(session.user);
+    } else {
+        showAuth();
+        // Reload to clear app state if we were previously logged in
+        if (window.app) {
+            window.location.reload();
+        }
+    }
+});
 
 export default AIBlackboard;
